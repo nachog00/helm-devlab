@@ -1,0 +1,13 @@
+name: Helm Chart CI
+on:
+  pull_request:
+    paths:
+      - 'charts/**'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: helm lint charts/demo-app
+      - run: helm template charts/demo-app
