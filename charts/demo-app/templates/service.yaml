@@ -1,8 +1,8 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.nameOverride }}{{ .Values.envSuffix }}
-  namespace: {{ .Values.namespace }}{{ .Values.envSuffix }}
+  name: {{ .Values.namespace }}
+  namespace: {{ .Values.namespace }}
 spec:
   selector:
     app: {{ .Values.nameOverride }}
