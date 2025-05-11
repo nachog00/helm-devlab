@@ -38,6 +38,7 @@ fi
 
 CHART_PATH="charts/$CHART_NAME"
 APPSET_PATH="argocd/applicationsets/${CHART_NAME}.yaml"
+TEMPLATE_PATH="argocd/applicationsets/template.yaml"
 
 # Step 1: Scaffold Helm chart
 if [ -d "$CHART_PATH" ]; then
@@ -47,14 +48,17 @@ else
   echo "✅ Created Helm chart: $CHART_PATH"
 fi
 
-# Step 2: Create ApplicationSet from template
+# Step 2: Create ApplicationSet from template.yaml, preserving Go templating
 if [ -f "$APPSET_PATH" ]; then
   echo "ApplicationSet already exists at $APPSET_PATH. Skipping copy."
 else
-  cp argocd/applicationsets/template.yaml "$APPSET_PATH"
-  sed -i "s|<your-chart-name>|$CHART_NAME|g" "$APPSET_PATH"
-  sed -i "s|<your-org>|$REPO_OWNER|g" "$APPSET_PATH"
-  sed -i "s|<your-repo>|$REPO_NAME|g" "$APPSET_PATH"
+  TEMPLATE=$(<"$TEMPLATE_PATH")
+  TEMPLATE_ESCAPED=$(echo "$TEMPLATE" | sed \
+    -e "s|<your-chart-name>|$CHART_NAME|g" \
+    -e "s|<your-org>|$REPO_OWNER|g" \
+    -e "s|<your-repo>|$REPO_NAME|g")
+
+  echo "$TEMPLATE_ESCAPED" > "$APPSET_PATH"
   echo "📄 Created ApplicationSet at: $APPSET_PATH"
 fi
 
@@ -64,4 +68,3 @@ echo "✔ Repo: $REPO_OWNER/$REPO_NAME"
 echo "✔ Chart path: $CHART_PATH"
 echo "✔ ApplicationSet: $APPSET_PATH"
 echo "Edit as needed and apply via: kubectl apply -f $APPSET_PATH"
-
