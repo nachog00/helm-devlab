@@ -98,22 +98,14 @@ kubectl apply -f argocd/applicationsets/<chart-name>.yaml
 
 ## 🔄 GitHub CI Integration
 
-```yaml
-# .github/workflows/ci.yaml
-name: Helm Chart CI
-on:
-  pull_request:
-    paths:
-      - 'charts/**'
+The project includes a GitHub Actions workflow that automatically lints and renders all charts in the `charts/` directory on each pull request.
 
-jobs:
-  validate:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: helm lint charts/demo-app
-      - run: helm template charts/demo-app
-```
+This ensures:
+- Your Helm syntax is valid
+- Templates render correctly without needing a cluster
+- All charts are tested dynamically without hardcoding their names
+
+This helps you catch issues early and keeps your infrastructure code safe to deploy.
 
 ---
 
