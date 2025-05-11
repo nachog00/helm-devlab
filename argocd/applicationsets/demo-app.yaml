@@ -24,7 +24,7 @@ spec:
     spec:
       project: default
       source:
-        repoURL: https://github.com/your-org/helm-chart-devlab.git
+        repoURL: https://github.com/nachog00/helm-devlab.git
         targetRevision: '{{head_sha | default "dev"}}'
         path: charts/demo-app
         helm:
