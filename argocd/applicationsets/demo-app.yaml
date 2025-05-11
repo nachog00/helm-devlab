@@ -26,7 +26,6 @@ spec:
         helm:
           values: |
             namespace: demo-pr-{{ number }}
-            envSuffix: -pr-{{ number }}
       destination:
         server: https://kubernetes.default.svc
         namespace: demo-pr-{{ number }}
