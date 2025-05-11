@@ -9,5 +9,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: helm lint charts/demo-app
-      - run: helm template charts/demo-app
+
+      - name: Lint and template all charts
+        run: |
+          for dir in charts/*; do
+            if [ -f "$dir/Chart.yaml" ]; then
+              echo "🔍 Validating $dir"
+              helm lint "$dir"
+              helm template "$dir"
+            fi
+          done
