@@ -7,35 +7,30 @@ spec:
   generators:
     - pullRequest:
         github:
-          owner: your-org
-          repo: helm-chart-devlab
+          owner: nachog00
+          repo: helm-devlab
           tokenRef:
             secretName: github-token
             key: token
         requeueAfterSeconds: 60
-    - git:
-        repoURL: https://github.com/your-org/helm-chart-devlab.git
-        revision: dev
-        directories:
-          - path: charts/demo-app
+
   template:
     metadata:
-      name: demo-app-{{branch}}-{{number | default "dev"}}
+      name: demo-app-pr-{{ number }}
     spec:
       project: default
       source:
-        repoURL: https://github.com/your-org/helm-chart-devlab.git
-        targetRevision: '{{head_sha | default "dev"}}'
+        repoURL: https://github.com/nachog00/helm-devlab.git
         path: charts/demo-app
+        targetRevision: '{{ head_sha }}'
         helm:
           values: |
-            namespace: demo
-            envSuffix: "{{ '-pr-' + number if number else '-dev' }}"
+            namespace: demo-pr-{{ number }}
+            envSuffix: -pr-{{ number }}
       destination:
         server: https://kubernetes.default.svc
-        namespace: demo{{ '-pr-' + number if number else '-dev' }}
+        namespace: demo-pr-{{ number }}
       syncPolicy:
         automated:
           prune: true
           selfHeal: true
-
