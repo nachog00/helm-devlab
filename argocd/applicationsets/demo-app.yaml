@@ -4,22 +4,6 @@ metadata:
   name: demo-app-previews
   namespace: argocd
 spec:
-  template: # <- base template (can be minimal, or even empty)
-    metadata:
-      name: demo-app-default
-    spec:
-      project: default
-      source:
-        repoURL: https://github.com/nachog00/helm-devlab.git
-        path: charts/demo-app
-        helm: {}
-      destination:
-        server: https://kubernetes.default.svc
-      syncPolicy:
-        automated:
-          prune: true
-          selfHeal: true
-
   generators:
     - pullRequest:
         github:
@@ -29,33 +13,24 @@ spec:
             secretName: github-token
             key: token
         requeueAfterSeconds: 60
-      template:
-        metadata:
-          name: demo-app-pr-{{number}}
-        spec:
-          destination:
-            namespace: demo-pr-{{number}}
-          source:
-            targetRevision: '{{head_sha}}'
-            helm:
-              values: |
-                namespace: demo-pr-{{number}}
-                envSuffix: -pr-{{number}}
 
-    - git:
+  template:
+    metadata:
+      name: demo-app-pr-{{ number }}
+    spec:
+      project: default
+      source:
         repoURL: https://github.com/nachog00/helm-devlab.git
-        revision: dev
-        directories:
-          - path: charts/demo-app
-      template:
-        metadata:
-          name: demo-app-dev
-        spec:
-          destination:
-            namespace: demo-dev
-          source:
-            targetRevision: dev
-            helm:
-              values: |
-                namespace: demo-dev
-                envSuffix: -dev
+        path: charts/demo-app
+        targetRevision: '{{ head_sha }}'
+        helm:
+          values: |
+            namespace: demo-pr-{{ number }}
+            envSuffix: -pr-{{ number }}
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: demo-pr-{{ number }}
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
