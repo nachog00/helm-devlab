@@ -11,7 +11,11 @@ helm-chart-devlab/
 ├── charts/
 │   └── demo-app/                # A minimal chart for sandbox testing
 ├── argocd/
-│   └── applicationset.yaml      # ApplicationSet template for dynamic previews
+│   └── applicationsets/
+│       ├── demo-app.yaml        # AppSet for the demo app
+│       └── template.yaml        # Copy this to start a new chart preview
+├── scripts/
+│   └── init-chart.sh            # Helper script to scaffold charts + AppSets
 ├── .github/
 │   └── workflows/ci.yaml        # GitHub Actions chart linting/testing
 └── README.md                    # This file
@@ -21,10 +25,10 @@ helm-chart-devlab/
 
 ## 🚀 What This Boilerplate Does
 
-* ✅ Provides a real-world structure to build and test Helm charts
-* ✅ Uses ArgoCD to deploy preview environments for PRs and branches
-* ✅ Manages each PR as a dynamic namespace (`demo-dev`, `demo-pr-42`)
-* ✅ Validates Helm charts via GitHub Actions
+- ✅ Provides a real-world structure to build and test Helm charts
+- ✅ Uses ArgoCD to deploy preview environments for PRs and branches
+- ✅ Manages each PR as a dynamic namespace (`demo-dev`, `demo-pr-42`)
+- ✅ Validates Helm charts via GitHub Actions
 
 You can fork this repo and use it to build and iterate on any chart.
 
@@ -49,29 +53,46 @@ You can replace it with your own chart while maintaining the same GitOps flow.
 ## 🔧 Setup Instructions
 
 ### 1. Install ArgoCD
-
 ```bash
 helm repo add argo https://argoproj.github.io/argo-helm
 helm install argocd argo/argo-cd -n argocd --create-namespace
 ```
 
 ### 2. Deploy the ApplicationSet
-
 ```bash
 kubectl create secret generic github-token \
   --from-literal=token=<your_github_pat> \
   -n argocd
-kubectl apply -f argocd/applicationset.yaml
+kubectl apply -f argocd/applicationsets/demo-app.yaml
+```
+
+### 3. Create a New Chart and ApplicationSet
+
+Use the helper script to scaffold everything for a new chart:
+
+```bash
+./scripts/init-chart.sh <chart-name> [<repo-owner>] [<repo-name>]
+```
+
+If `repo-owner` and `repo-name` are omitted, the script will prompt you.
+
+This will:
+- Create a Helm chart under `charts/<chart-name>`
+- Copy and customize `argocd/applicationsets/template.yaml`
+
+Then apply your new AppSet:
+```bash
+kubectl apply -f argocd/applicationsets/<chart-name>.yaml
 ```
 
 ---
 
 ## 🧠 What You Can Do with This Repo
 
-* 🔨 Develop your own charts in `charts/<your-chart>`
-* 🔁 Create one ApplicationSet per chart for dynamic previews
-* 🔍 Use `values.namespace` and `envSuffix` to isolate each preview
-* 🧪 Learn how ArgoCD manages chart lifecycles in a safe testbed
+- 🔨 Develop your own charts in `charts/<your-chart>`
+- 🔁 Create one ApplicationSet per chart for dynamic previews
+- 🔍 Use `values.namespace` and `envSuffix` to isolate each preview
+- 🧪 Learn how ArgoCD manages chart lifecycles in a safe testbed
 
 ---
 
@@ -99,16 +120,13 @@ jobs:
 ## 📦 Chart Templates to Explore
 
 You can use this framework to build and test:
+- CI platforms (e.g., `arc-minio`)
+- GitOps tools (e.g., `flux`, `tekton`, `argo-events`)
+- Lightweight internal services
 
-* CI platforms (e.g., `arc-minio`)
-* GitOps tools (e.g., `flux`, `tekton`, `argo-events`)
-* Lightweight internal services
-
-Just add your own subcharts under `charts/` and create matching ArgoCD `ApplicationSet` manifests in `argocd/`.
+Just add your own subcharts under `charts/` and create matching ArgoCD `ApplicationSet` manifests in `argocd/applicationsets/`.
 
 ---
 
 ## 📜 License
-
 MIT or your preferred license.
-
