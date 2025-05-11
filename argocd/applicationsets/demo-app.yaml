@@ -1,0 +1,41 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: demo-app-previews
+  namespace: argocd
+spec:
+  generators:
+    - pullRequest:
+        github:
+          owner: your-org
+          repo: helm-chart-devlab
+          tokenRef:
+            secretName: github-token
+            key: token
+        requeueAfterSeconds: 60
+    - git:
+        repoURL: https://github.com/your-org/helm-chart-devlab.git
+        revision: dev
+        directories:
+          - path: charts/demo-app
+  template:
+    metadata:
+      name: demo-app-{{branch}}-{{number | default "dev"}}
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/your-org/helm-chart-devlab.git
+        targetRevision: '{{head_sha | default "dev"}}'
+        path: charts/demo-app
+        helm:
+          values: |
+            namespace: demo
+            envSuffix: "{{ '-pr-' + number if number else '-dev' }}"
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: demo{{ '-pr-' + number if number else '-dev' }}
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+
