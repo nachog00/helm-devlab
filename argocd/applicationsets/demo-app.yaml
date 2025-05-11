@@ -14,7 +14,7 @@ spec:
             key: token
         requeueAfterSeconds: 60
     - git:
-        repoURL: https://github.com/your-org/helm-chart-devlab.git
+        repoURL: https://github.com/nachog00/helm-devlab.git
         revision: dev
         directories:
           - path: charts/demo-app
