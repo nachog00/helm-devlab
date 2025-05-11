@@ -1,0 +1,43 @@
+# This is a template ApplicationSet for previewing Helm charts per PR/branch.
+# Copy this file, rename it (e.g. arc-minio.yaml), and update the values below.
+
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: <your-chart-name>-previews
+  namespace: argocd
+spec:
+  generators:
+    - pullRequest:
+        github:
+          owner: <your-org>
+          repo: <your-repo>
+          tokenRef:
+            secretName: github-token
+            key: token
+        requeueAfterSeconds: 60
+    - git:
+        repoURL: https://github.com/<your-org>/<your-repo>.git
+        revision: dev
+        directories:
+          - path: charts/<your-chart-name>
+  template:
+    metadata:
+      name: <your-chart-name>-{{branch}}-{{number | default "dev"}}
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/<your-org>/<your-repo>.git
+        targetRevision: '{{head_sha | default "dev"}}'
+        path: charts/<your-chart-name>
+        helm:
+          values: |
+            namespace: <your-chart-name>
+            envSuffix: "{{ '-pr-' + number if number else '-dev' }}"
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: <your-chart-name>{{ '-pr-' + number if number else '-dev' }}
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
