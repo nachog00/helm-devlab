@@ -59,6 +59,19 @@ helm install argocd argo/argo-cd -n argocd --create-namespace
 ```
 
 ### 2. Deploy the ApplicationSet
+
+Before applying the ApplicationSet, you need a GitHub Personal Access Token (PAT) so ArgoCD can fetch pull request metadata.
+
+**Use the following settings:**
+
+- **Name**: `argocd-preview-env-access`
+- **Description**: Token used by ArgoCD ApplicationSets to fetch PRs and branches for dynamic preview environments.
+- **Scopes**:
+  - `repo` (for both public and private repos)
+  - `read:org` (if the repo is under an organization)
+
+Then create the token secret in your cluster:
+
 ```bash
 kubectl create secret generic github-token \
   --from-literal=token=<your_github_pat> \
@@ -106,6 +119,7 @@ This ensures:
 - All charts are tested dynamically without hardcoding their names
 
 This helps you catch issues early and keeps your infrastructure code safe to deploy.
+
 
 ---
 
