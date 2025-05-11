@@ -34,10 +34,10 @@ jobs:
             const changed = `${{ steps.changed.outputs.changed_charts }}`.split("\n").filter(Boolean)
             const labels = changed.map(name => name.trim())
             if (labels.length > 0) {
-              await github.rest.issues.addLabels({
+              await github.rest.prs.addLabels({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                issue_number: context.issue.number,
+                pr_number: context.pr.number,
                 labels: labels,
               })
               console.log(`Added labels: ${labels.join(", ")}`)
