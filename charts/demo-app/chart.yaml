@@ -1,0 +1,4 @@
+apiVersion: v2
+name: demo-app
+description: A minimal NGINX Helm chart for testing ArgoCD preview environments
+version: 0.1.0

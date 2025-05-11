@@ -1,0 +1,11 @@
+namespace: demo
+nameOverride: demo-app
+replicaCount: 1
+image:
+  repository: nginxdemos/hello
+  tag: latest
+  pullPolicy: IfNotPresent
+service:
+  type: ClusterIP
+  port: 80
+envSuffix: ""
