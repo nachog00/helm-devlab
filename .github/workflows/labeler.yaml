@@ -5,6 +5,9 @@ on:
     paths:
       - 'charts/**'
 
+permissions:
+  pull-requests: write
+
 jobs:
   label-changed-charts:
     runs-on: ubuntu-latest
