@@ -13,29 +13,49 @@ spec:
             secretName: github-token
             key: token
         requeueAfterSeconds: 60
+      template:
+        metadata:
+          name: demo-app-pr-{{number}}
+        spec:
+          project: default
+          source:
+            repoURL: https://github.com/nachog00/helm-devlab.git
+            targetRevision: '{{head_sha}}'
+            path: charts/demo-app
+            helm:
+              values: |
+                namespace: demo-pr-{{number}}
+                envSuffix: -pr-{{number}}
+          destination:
+            server: https://kubernetes.default.svc
+            namespace: demo-pr-{{number}}
+          syncPolicy:
+            automated:
+              prune: true
+              selfHeal: true
+
     - git:
         repoURL: https://github.com/nachog00/helm-devlab.git
         revision: dev
         directories:
           - path: charts/demo-app
-  template:
-    metadata:
-      name: demo-app-{{branch}}-{{number | default "dev"}}
-    spec:
-      project: default
-      source:
-        repoURL: https://github.com/nachog00/helm-devlab.git
-        targetRevision: '{{head_sha | default "dev"}}'
-        path: charts/demo-app
-        helm:
-          values: |
-            namespace: demo
-            envSuffix: "{{ '-pr-' + number if number else '-dev' }}"
-      destination:
-        server: https://kubernetes.default.svc
-        namespace: demo{{ '-pr-' + number if number else '-dev' }}
-      syncPolicy:
-        automated:
-          prune: true
-          selfHeal: true
-
+      template:
+        metadata:
+          name: demo-app-dev
+        spec:
+          project: default
+          source:
+            repoURL: https://github.com/nachog00/helm-devlab.git
+            targetRevision: dev
+            path: charts/demo-app
+            helm:
+              values: |
+                namespace: demo-dev
+                envSuffix: -dev
+          destination:
+            server: https://kubernetes.default.svc
+            namespace: demo-dev
+          syncPolicy:
+            automated:
+              prune: true
+              selfHeal: true
