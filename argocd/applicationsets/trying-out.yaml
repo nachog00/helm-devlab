@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: trying-out-previews
+  namespace: argocd
+spec:
+  generators:
+    - pullRequest:
+        github:
+          owner: nachog00
+          repo: helm-devlab
+          tokenRef:
+            secretName: github-token
+            key: token
+        requeueAfterSeconds: 60
+
+  template:
+    metadata:
+      name: trying-out-pr-{{ number }}
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/nachog00/helm-devlab.git
+        path: charts/trying-out
+        targetRevision: '{{ head_sha }}'
+        helm:
+          values: |
+            namespace: trying-out-pr-{{ number }}
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: trying-out-pr-{{ number }}
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
