@@ -7,8 +7,8 @@ spec:
   generators:
     - pullRequest:
         github:
-          owner: your-org
-          repo: helm-chart-devlab
+          owner: nachog00
+          repo: helm-devlab
           tokenRef:
             secretName: github-token
             key: token
